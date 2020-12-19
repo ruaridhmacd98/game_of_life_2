@@ -46,7 +46,7 @@ class Canvas extends React.Component {
     ctx.fillRect(0,0,this.state.width,this.state.height);
     ctx.fillStyle="#000000";
     cells.forEach((row,y,grid)=>{
-      row.forEach((cell_state,x,row)=>{
+      row.forEach((cellState,x,row)=>{
 	ctx.fillRect(y*10+31 , x*10+31  ,8,8);
       })
     })
@@ -83,7 +83,7 @@ class Game {
   getCounts(grid) {
     let counts = new Map();
     grid.forEach((row,y,grid)=>{
-      row.forEach((cell_state,x,row)=>{
+      row.forEach((cellState,x,row)=>{
 	for(let i=-1; i<2; i++){
 	   for(let j =-1; j<2; j++){
 		if(!counts.has(y+i)){
@@ -137,5 +137,35 @@ class Game {
 	row.set(2,0)
 	grid.set(3,row);
     return grid;
+  }
+}
+
+
+class Grid {
+  constructor() {
+    this.state = {
+      grid: new Map(),
+    }
+  }
+
+  set(x, y, value){
+   if(!this.state.grid.has(y)){
+     this.state.grid.set(y, new Map());
+   }
+   this.state.grid.get(y).set(x,0);
+  }
+
+  has(x, y){return this.state.grid.get(y).has(x)}
+
+  get(x, y){return this.state.grid.get(y).get(x)}
+
+  listCells(){
+    var output = []
+    this.state.grid.forEach((row, y, counts)=>{
+      row.forEach((count, x, row)=>{
+	output.push([x, y])
+      })
+    })
+    return output;
   }
 }
