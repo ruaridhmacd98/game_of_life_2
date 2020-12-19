@@ -18,6 +18,7 @@ class Canvas extends React.Component {
     let ctx = canvas.getContext("2d");
     ctx.canvas.width = window.innerWidth;
 	ctx.canvas.height = window.innerHeight;
+    ctx.canvas.addEventListener('mousedown', onclick);
     var game = new Game();
     this.setState({width: canvas.width});
     this.setState({height: canvas.height});
@@ -31,6 +32,13 @@ class Canvas extends React.Component {
 
   updateRunning = () => {
     this.setState({isRunning: !this.state.isRunning})
+  }
+
+  handleClick(event){
+	let ctx = this.refs.canvas.getContext("2d");
+ 	let x = event.clientX - ctx.canvas.offsetLeft;
+	let y = event.clientY - ctx.canvas.offsetTop;
+  
   }
 
   draw(cells, ctx){
@@ -55,7 +63,7 @@ class Canvas extends React.Component {
 	    {this.state.isRunning ? <div>Stop</div>
                             : <div>Start</div>}
 	</button>
-        <canvas ref="canvas"></canvas>
+        <canvas ref="canvas" onClick={this.handleClick}></canvas>
         </body>
       </div>
     );
