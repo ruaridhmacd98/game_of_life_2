@@ -20,11 +20,12 @@ class Canvas extends React.Component {
 	ctx.canvas.height = window.innerHeight;
     ctx.canvas.addEventListener('mousedown', onclick);
     var game = new Game();
+    var cells = game.getInitialGrid();
     this.setState({width: canvas.width});
     this.setState({height: canvas.height});
     setInterval(()=>{
 	if (this.state.isRunning) {
-		let cells = game.iterate();
+		cells = game.iterate(cells);
 		this.draw(cells, ctx)
 	}
      }, 250)
@@ -38,7 +39,6 @@ class Canvas extends React.Component {
 	let ctx = this.refs.canvas.getContext("2d");
  	let x = event.clientX - ctx.canvas.offsetLeft;
 	let y = event.clientY - ctx.canvas.offsetTop;
-  
   }
 
   draw(cells, ctx){
@@ -74,27 +74,15 @@ export default Canvas;
 
 
 class Game {
-  constructor() {
-    this.state = {
-      grid: this.getInitialGrid(),
-    };
+  iterate(grid){
+    let counts = this.getCounts(grid)
+    let newGrid = this.generateNewGrid(counts, grid)
+    return newGrid;
   }
 
-  iterate(){
-    console.log(this.state.grid)
-    this.updateGrid();
-    return this.state.grid;
-  }
-
-  updateGrid(){
-    let counts = this.getCounts()
-    let newGrid = this.generateNewGrid(counts)
-    this.state.grid = newGrid
-  }
-
-  getCounts() {
+  getCounts(grid) {
     let counts = new Map();
-    this.state.grid.forEach((row,y,grid)=>{
+    grid.forEach((row,y,grid)=>{
       row.forEach((cell_state,x,row)=>{
 	for(let i=-1; i<2; i++){
 	   for(let j =-1; j<2; j++){
@@ -112,7 +100,7 @@ class Game {
     return counts;
   }
 
-  generateNewGrid(counts){
+  generateNewGrid(counts, oldGrid){
      let buffer = new Map();
      counts.forEach((row, y, counts)=>{
 	row.forEach((count, x, row)=>{
@@ -123,7 +111,7 @@ class Game {
 		   buffer.get(y).set(x,0);
 		}
 		if(count===4){
-		  if(this.state.grid.get(y).has(x)){
+		  if(oldGrid.get(y).has(x)){
 		     if(!buffer.has(y)){
 			   buffer.set(y, new Map());
 		     }
