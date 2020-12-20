@@ -10,6 +10,8 @@ class Canvas extends React.Component {
 	  height: null,
 	  ctx: null,
 	  isRunning: true,
+	  isDragging: false,
+	  mousePosition: [0, 0],
 	  scale: 10,
 	  centreOffset: [0, 0],
 	  cells: getInitialGrid()
@@ -20,13 +22,13 @@ class Canvas extends React.Component {
     let canvas = this.refs.canvas;
     let ctx = canvas.getContext("2d");
     ctx.canvas.width = window.innerWidth;
-    ctx.canvas.height = window.innerHeight;
+    ctx.canvas.height = window.innerHeight * 0.9;
     var game = new Game();
     this.setState({width: canvas.width});
     this.setState({height: canvas.height});
     setInterval(()=>{
+	this.draw();
 	if (this.state.isRunning) {
-		this.draw();
 		this.setState({cells: game.iterate(this.state.cells)});
 	}
      }, 250)
@@ -47,15 +49,38 @@ class Canvas extends React.Component {
 
   handleWheel(event){
     let scroll = event.deltaY;
-	  var newScale = this.state.scale;
+	  let newScale = this.state.scale;
+	  let [newX, newY] = this.state.centreOffset;
 	  if(scroll>0){
 	    newScale/=0.9;
+	    newX/=0.9;
+	    newY/=0.9;
 	  }
 	  else if(newScale>1){
 	    newScale*=0.9;
+	    newX*=0.9;
+	    newY*=0.9;
 	  }
-    this.setState({scale: newScale})
+    this.setState({scale: newScale, centreOffset: [newX, newY]})
     this.draw();
+  }
+
+  handleMouseDown(event){
+   this.setState({isDragging: true, mousePosition: [event.clientX, event.clientY]});
+  }
+
+  handleMouseUp(event){
+   this.setState({isDragging: false});
+  }
+
+  handleMouseMove(event){
+    if(this.state.isDragging){
+      let [newX, newY] = this.state.centreOffset;
+      newX += event.clientX - this.state.mousePosition[0];
+      newY += event.clientY - this.state.mousePosition[1];
+      this.setState({centreOffset: [newX, newY], mousePosition: [event.clientX, event.clientY]});
+      this.draw();
+    }
   }
 
   clientToCell([clientx, clienty]){
@@ -97,6 +122,9 @@ class Canvas extends React.Component {
         <canvas ref="canvas"
 	    onClick={(event) => this.handleClick(event)}
 	    onWheel={(event) => this.handleWheel(event)}
+	    onMouseDown={(event) => this.handleMouseDown(event)}
+	    onMouseUp={(event) => this.handleMouseUp(event)}
+	    onMouseMove={(event) => this.handleMouseMove(event)}
 	></canvas>
         </body>
       </div>
