@@ -10,6 +10,9 @@ class Canvas extends React.Component {
 	  height: null,
 	  ctx: null,
 	  isRunning: true,
+	  scale: 10,
+	  centreOffset: [0, 0],
+	  cells: getInitialGrid()
     };
   }
 
@@ -17,17 +20,14 @@ class Canvas extends React.Component {
     let canvas = this.refs.canvas;
     let ctx = canvas.getContext("2d");
     ctx.canvas.width = window.innerWidth;
-	ctx.canvas.height = window.innerHeight;
-    ctx.canvas.addEventListener('mousedown', onclick);
+    ctx.canvas.height = window.innerHeight;
     var game = new Game();
-    var cells = getInitialGrid();
     this.setState({width: canvas.width});
     this.setState({height: canvas.height});
-    this.draw(cells, ctx)
     setInterval(()=>{
 	if (this.state.isRunning) {
-		cells = game.iterate(cells);
-		this.draw(cells, ctx)
+		this.draw();
+		this.setState({cells: game.iterate(this.state.cells)});
 	}
      }, 250)
      }
@@ -37,20 +37,49 @@ class Canvas extends React.Component {
   }
 
   handleClick(event){
-	let ctx = this.refs.canvas.getContext("2d");
- 	let x = event.clientX - ctx.canvas.offsetLeft;
-	let y = event.clientY - ctx.canvas.offsetTop;
+    let ctx = this.refs.canvas.getContext("2d");
+    let x = event.clientX - ctx.canvas.offsetLeft;
+    let y = event.clientY - ctx.canvas.offsetTop;
+    [x, y] = this.clientToCell([x, y]);
+    this.state.cells.set(x, y, 0);
+    this.draw();
   }
 
-  draw(cells, ctx){
+  handleWheel(event){
+    let scroll = event.deltaY;
+	  var newScale = this.state.scale;
+	  if(scroll>0){
+	    newScale/=0.9;
+	  }
+	  else if(newScale>1){
+	    newScale*=0.9;
+	  }
+    this.setState({scale: newScale})
+    this.draw();
+  }
+
+  clientToCell([clientx, clienty]){
+    let cellx = Math.floor((clientx - this.state.width/2 - this.state.centreOffset[0]) / this.state.scale);
+    let celly = Math.floor((clienty - this.state.height/2 - this.state.centreOffset[1]) / this.state.scale);
+    return [cellx, celly];
+  }
+
+  cellToClient([x, y]){
+	let clientx = Math.floor(x*this.state.scale + this.state.centreOffset[0] + this.state.width/2);
+	let clienty = Math.floor(y*this.state.scale + this.state.centreOffset[1] + this.state.height/2);
+	return [clientx, clienty];
+  }
+
+  draw(){
+    let ctx = this.refs.canvas.getContext("2d");
     ctx.fillStyle="#E0E0E0";
     ctx.fillRect(0,0,this.state.width,this.state.height);
     ctx.fillStyle="#000000";
-    const coords = cells.listCells()
+    const coords = this.state.cells.listCells()
     for(var i=0; i<coords.length; i++){
 	var x, y
-	[x, y] = coords[i]
-	ctx.fillRect(x*10+31 , y*10+31  ,8,8);
+	[x, y] = this.cellToClient(coords[i])
+	ctx.fillRect(x, y, 0.9*this.state.scale, 0.9*this.state.scale);
     }
   }
 
@@ -65,7 +94,10 @@ class Canvas extends React.Component {
 	    {this.state.isRunning ? <div>Stop</div>
                             : <div>Start</div>}
 	</button>
-        <canvas ref="canvas" onClick={this.handleClick}></canvas>
+        <canvas ref="canvas"
+	    onClick={(event) => this.handleClick(event)}
+	    onWheel={(event) => this.handleWheel(event)}
+	></canvas>
         </body>
       </div>
     );
@@ -83,7 +115,6 @@ class Game {
   }
 
   getCounts(grid) {
-    console.log('intial', grid.state.grid)
     let counts = new Grid();
     const cells = grid.listCells()
     for(var c=0; c<cells.length; c++){
@@ -100,7 +131,6 @@ class Game {
 	   }
 	}
     }
-    console.log('counts', counts.state.grid)
     return counts;
   }
 
