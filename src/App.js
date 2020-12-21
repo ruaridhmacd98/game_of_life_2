@@ -6,6 +6,7 @@ import './App.css';
 const COLOURS = {
   1: '#0000FF',
   2: '#FF0000',
+  3: '#00FF00',
 }
 
 class Canvas extends React.Component {
@@ -210,6 +211,11 @@ function getInitialGrid() {
       grid.set(18, 2, 2);
       grid.set(19, 1, 2);
       grid.set(17, 2, 2);
+      grid.set(3, 20, 3);
+      grid.set(3, 21, 3);
+      grid.set(3, 22, 3);
+      grid.set(4, 21, 3);
+      grid.set(2, 22, 3);
   return grid;
 }
 
