@@ -181,14 +181,16 @@ export class Game {
     for(var i=0; i<cells.length; i++){
 	var x, y;
 	[x, y] = cells[i];
-	var count = counts.get(x, y);
-        if(count===3){
-	   buffer.set(x, y, 1);
+	var playerCounts = counts.get(x, y);
+	const sumValues = obj => Object.values(obj).reduce((a, b) => a + b);
+	let total = sumValues(playerCounts)
+        if(oldGrid.has(x, y)){
+          if(total===2 | total === 4){
+	    buffer.set(x, y, 1);
+	  }
         }
-        if(count===4){
-          if(oldGrid.has(x, y)){
+	else if(total===3){
 	     buffer.set(x, y, 1);
-          }
         }
     }
     return buffer;
