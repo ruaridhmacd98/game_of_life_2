@@ -2,16 +2,10 @@ import {Game, Grid} from './App';
 
 test('get new grid simple', () => {
   /*
-   0 0 0 0
-   0 0 0 0
-   0 1 0 0
-   0 0 0 0
-
-   0 0 0 0
-   1 1 1 0
-   1 0 1 0
-   1 1 1 0
-
+   0 0 0 0   0 0 0 0
+   0 0 0 0   1 1 1 0
+   0 1 0 0   1 0 1 0
+   0 0 0 0   1 1 1 0
   */
   let grid = new Grid();
   grid.set(1, 2, 1)
@@ -25,6 +19,40 @@ test('get new grid simple', () => {
   expected.set(2, 1, {1: 1})
   expected.set(2, 2, {1: 1})
   expected.set(2, 3, {1: 1})
+  let counts = game.getCounts(grid)
+  expect(counts).toStrictEqual(expected);
+  let newGrid = game.generateNewGrid(counts, grid)
+  expected = new Grid();
+  expect(newGrid).toStrictEqual(expected);
+});
+
+
+test('get new grid 2 player simple', () => {
+  /*
+   0 0 0 0      0   2   2   2
+   0 0 2 0      1   1,2 1   2
+   0 1 0 0      1   2   1,2 2
+   0 0 0 0      1   1   1   0
+  */
+  let grid = new Grid();
+  grid.set(1, 2, 1)
+  grid.set(2, 1, 2)
+  let game = new Game();
+  let expected = new Grid();
+  expected.set(0, 1, {1: 1})
+  expected.set(0, 2, {1: 1})
+  expected.set(0, 3, {1: 1})
+  expected.set(1, 0, {2: 1})
+  expected.set(1, 1, {1: 1, 2:1})
+  expected.set(1, 2, {2: 1})
+  expected.set(1, 3, {1: 1})
+  expected.set(2, 0, {2: 1})
+  expected.set(2, 1, {1: 1})
+  expected.set(2, 2, {1: 1, 2:1})
+  expected.set(2, 3, {1: 1})
+  expected.set(3, 0, {2: 1})
+  expected.set(3, 1, {2: 1})
+  expected.set(3, 2, {2:1})
   let counts = game.getCounts(grid)
   expect(counts).toStrictEqual(expected);
   let newGrid = game.generateNewGrid(counts, grid)
@@ -70,5 +98,34 @@ test('get new grid more complex', () => {
   expected.set(1, 2, 1)
   expected.set(2, 2, 1)
   expected.set(3, 2, 1)
+  expect(newGrid).toStrictEqual(expected);
+});
+
+
+test('get new grid 2 player more complex', () => {
+  /*
+   0 1 0 0 0 0 0    0 0 0 0 0 0 0
+   0 1 0 0 0 0 0    1 1 1 0 0 0 0
+   0 1 0 0 0 0 0    0 0 0 0 0 2 0
+   0 0 0 0 2 2 2    0 0 0 0 0 2 0
+   0 0 0 0 0 0 0    0 0 0 0 0 2 0
+  */
+  let grid = new Grid();
+  grid.set(1, 0, 1)
+  grid.set(1, 1, 1)
+  grid.set(1, 2, 1)
+  grid.set(4, 3, 2)
+  grid.set(5, 3, 2)
+  grid.set(6, 3, 2)
+  let game = new Game();
+  let expected = new Grid();
+  let newGrid = game.iterate(grid)
+  expected = new Grid();
+  expected.set(0, 1, 1)
+  expected.set(1, 1, 1)
+  expected.set(2, 1, 1)
+  expected.set(5, 2, 2)
+  expected.set(5, 3, 2)
+  expected.set(5, 4, 2)
   expect(newGrid).toStrictEqual(expected);
 });

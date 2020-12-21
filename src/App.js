@@ -183,14 +183,15 @@ export class Game {
 	[x, y] = cells[i];
 	var playerCounts = counts.get(x, y);
 	const sumValues = obj => Object.values(obj).reduce((a, b) => a + b);
+	const maxValue = obj => Object.keys(obj).reduce(function(a, b){ return obj[a] > obj[b] ? a : b });
 	let total = sumValues(playerCounts)
         if(oldGrid.has(x, y)){
-          if(total===2 | total === 4){
-	    buffer.set(x, y, 1);
+          if(total===2 | total === 3){
+	    buffer.set(x, y, oldGrid.get(x, y));
 	  }
         }
 	else if(total===3){
-	     buffer.set(x, y, 1);
+	     buffer.set(x, y, parseInt(maxValue(playerCounts)));
         }
     }
     return buffer;
