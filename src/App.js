@@ -44,7 +44,7 @@ class Canvas extends React.Component {
     let canvas = this.refs.canvas;
     let ctx = canvas.getContext("2d");
     ctx.canvas.width = window.innerWidth;
-    ctx.canvas.height = window.innerHeight * 0.9;
+    ctx.canvas.height = window.innerHeight * 0.8;
     var game = new Game();
     this.setState({width: canvas.width});
     this.setState({height: canvas.height});
@@ -151,14 +151,15 @@ class Canvas extends React.Component {
 	let x, y, clientx, clienty;
 	[x, y] = coords[i];
 	let player = this.state.cells.get(x, y);
-	let colour = COLOURS[player];
 	[clientx, clienty] = this.cellToClient([x, y]);
-	ctx.fillStyle=colour;
+	ctx.fillStyle=COLOURS[player];
 	ctx.fillRect(clientx, clienty, 0.9*this.state.scale, 0.9*this.state.scale);
     }
     let pattern = this.state.patternToPlace;
     let x, y, clientx, clienty, cellx, celly;
     [cellx, celly] = this.clientToCell(this.state.mousePosition);
+    // celly += ctx.canvas.offsetTop;
+    console.log(celly)
     for(i=0; i<pattern.length; i++){
       x = pattern[i][0]+cellx; y = pattern[i][1]+celly;
       [clientx, clienty] = this.cellToClient([x, y]);
@@ -175,6 +176,13 @@ class Canvas extends React.Component {
         <header className="App-header">
         </header>
         <body>
+        <canvas ref="canvas"
+	    onClick={(event) => this.handleClick(event)}
+	    onWheel={(event) => this.handleWheel(event)}
+	    onMouseDown={(event) => this.handleMouseDown(event)}
+	    onMouseUp={(event) => this.handleMouseUp(event)}
+	    onMouseMove={(event) => this.handleMouseMove(event)}
+	></canvas>
 	<Tutorial/>
 	<button className="button" onClick={this.updateRunning}>
 	    {this.state.isRunning ? <div>Stop</div>
@@ -190,13 +198,6 @@ class Canvas extends React.Component {
 	  options={COLOUR_OPTIONS}
 	  placeholder='Select Colour'
 	/>
-        <canvas ref="canvas"
-	    onClick={(event) => this.handleClick(event)}
-	    onWheel={(event) => this.handleWheel(event)}
-	    onMouseDown={(event) => this.handleMouseDown(event)}
-	    onMouseUp={(event) => this.handleMouseUp(event)}
-	    onMouseMove={(event) => this.handleMouseMove(event)}
-	></canvas>
         </body>
       </div>
     );
