@@ -2,6 +2,12 @@ import React from 'react';
 import Tutorial from './tutorial.js';
 import './App.css';
 
+
+const COLOURS = {
+  1: '#0000FF',
+  2: '#FF0000',
+}
+
 class Canvas extends React.Component {
   constructor() {
     super()
@@ -43,7 +49,7 @@ class Canvas extends React.Component {
     let x = event.clientX - ctx.canvas.offsetLeft;
     let y = event.clientY - ctx.canvas.offsetTop;
     [x, y] = this.clientToCell([x, y]);
-    this.state.cells.set(x, y, 0);
+    this.state.cells.set(x, y, 1);
     this.draw();
   }
 
@@ -99,12 +105,15 @@ class Canvas extends React.Component {
     let ctx = this.refs.canvas.getContext("2d");
     ctx.fillStyle="#E0E0E0";
     ctx.fillRect(0,0,this.state.width,this.state.height);
-    ctx.fillStyle="#000000";
     const coords = this.state.cells.listCells()
     for(var i=0; i<coords.length; i++){
-	var x, y
-	[x, y] = this.cellToClient(coords[i])
-	ctx.fillRect(x, y, 0.9*this.state.scale, 0.9*this.state.scale);
+	let x, y, clientx, clienty;
+	[x, y] = coords[i];
+	let player = this.state.cells.get(x, y);
+	let colour = COLOURS[player];
+	[clientx, clienty] = this.cellToClient([x, y]);
+	ctx.fillStyle=colour;
+	ctx.fillRect(clientx, clienty, 0.9*this.state.scale, 0.9*this.state.scale);
     }
   }
 
@@ -135,7 +144,7 @@ class Canvas extends React.Component {
 export default Canvas;
 
 
-class Game {
+export class Game {
   iterate(grid){
     let counts = this.getCounts(grid)
     let newGrid = this.generateNewGrid(counts, grid)
@@ -148,14 +157,18 @@ class Game {
     for(var c=0; c<cells.length; c++){
 	var x, y
 	[x, y] = cells[c]
+	let player = grid.get(x, y)
 	for(let i=-1; i<2; i++){
 	   for(let j =-1; j<2; j++){
-		if(!counts.has(x+j, y+i)){
-		  counts.set(x+j, y+i, 1);
-		} else {
-		  var count = counts.get(x+j, y+i)
-		  counts.set(x+j, y+i, count+1);
+		if(i===0 & j===0){continue}
+		let xtmp=x+j, ytmp=y+i;
+		if(!counts.has(xtmp, ytmp)){
+		  counts.set(xtmp, ytmp, {});
 		}
+		if(!(player in counts.get(xtmp, ytmp))){
+		  counts.get(xtmp, ytmp)[player] = 0;
+		}
+		counts.get(xtmp, ytmp)[player]++;
 	   }
 	}
     }
@@ -170,11 +183,11 @@ class Game {
 	[x, y] = cells[i];
 	var count = counts.get(x, y);
         if(count===3){
-	   buffer.set(x, y, 0);
+	   buffer.set(x, y, 1);
         }
         if(count===4){
           if(oldGrid.has(x, y)){
-	     buffer.set(x, y, 0);
+	     buffer.set(x, y, 1);
           }
         }
     }
@@ -184,16 +197,21 @@ class Game {
 
 function getInitialGrid() {
   const grid = new Grid();
-      grid.set(3, 0, 0);
-      grid.set(3, 1, 0);
-      grid.set(3, 2, 0);
-      grid.set(1, 1, 0);
-      grid.set(2, 2, 0);
+      grid.set(3, 0, 1);
+      grid.set(3, 1, 1);
+      grid.set(3, 2, 1);
+      grid.set(4, 1, 1);
+      grid.set(2, 2, 1);
+      grid.set(18, 0, 2);
+      grid.set(18, 1, 2);
+      grid.set(18, 2, 2);
+      grid.set(19, 1, 2);
+      grid.set(17, 2, 2);
   return grid;
 }
 
 
-class Grid {
+export class Grid {
   constructor() {
     this.state = {
       grid: new Map(),
