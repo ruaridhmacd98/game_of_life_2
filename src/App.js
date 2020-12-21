@@ -10,6 +10,12 @@ const COLOURS = {
   3: '#00FF00',
 }
 
+const COLOUR_OPTIONS = [
+  {label: 'blue', value: 1},
+  {label: 'red', value: 2},
+  {label: 'green', value: 3},
+]
+
 const PATTERNS = [
   {label: 'cell', value: [[0, 0]]},
   {label: 'square', value: [[0, 0], [1, 0], [0, 1], [1, 1]]},
@@ -30,6 +36,7 @@ class Canvas extends React.Component {
 	  centreOffset: [0, 0],
 	  cells: getInitialGrid(),
 	  patternToPlace: [[0, 0]],
+	  colourToPlace: 1,
     };
   }
 
@@ -50,8 +57,11 @@ class Canvas extends React.Component {
      }
 
   selectPattern = pattern => {
-	 console.log(pattern)
     this.setState({patternToPlace: pattern.value})
+  }
+
+  selectColour = colour => {
+    this.setState({colourToPlace: colour.value})
   }
 
   updateRunning = () => {
@@ -64,9 +74,8 @@ class Canvas extends React.Component {
     let y = event.clientY - ctx.canvas.offsetTop;
     [x, y] = this.clientToCell([x, y]);
     let pattern = this.state.patternToPlace;
-	  console.log(pattern)
     for(var i=0; i<pattern.length; i++){
-      this.state.cells.set(pattern[i][0]+x, pattern[i][1]+y, 1);
+      this.state.cells.set(pattern[i][0]+x, pattern[i][1]+y, this.state.colourToPlace);
     }
     this.draw();
   }
@@ -150,6 +159,11 @@ class Canvas extends React.Component {
 	  onChange={this.selectPattern}
 	  options={PATTERNS}
 	  placeholder='Select Pattern'
+	/>
+	<Select
+	  onChange={this.selectColour}
+	  options={COLOUR_OPTIONS}
+	  placeholder='Select Colour'
 	/>
         <canvas ref="canvas"
 	    onClick={(event) => this.handleClick(event)}
