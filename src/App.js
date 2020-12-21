@@ -163,7 +163,7 @@ class Canvas extends React.Component {
       x = pattern[i][0]+cellx; y = pattern[i][1]+celly;
       [clientx, clienty] = this.cellToClient([x, y]);
       ctx.globalAlpha=0.5;
-      ctx.fillStyle=this.state.colourToPlace;
+      ctx.fillStyle=COLOURS[this.state.colourToPlace];
       ctx.fillRect(clientx, clienty, 0.9*this.state.scale, 0.9*this.state.scale);
       ctx.globalAlpha=1.0;
     }
