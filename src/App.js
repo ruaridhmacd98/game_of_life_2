@@ -56,6 +56,18 @@ class Canvas extends React.Component {
      }, 250)
      }
 
+  patternFromFile(path) {
+    var fs = require("fs");
+    let res = []
+    fs.readFile("/Users/ruaridh/Documents/code/lfe/zweiback.lfe", function(text){
+      var textByLine = text.split("\n")
+      for(var i=1; i<textByLine.length; i++){
+         res.push(textByLine[i].split(' '))
+      }
+    });
+    return res;
+  }
+
   selectPattern = pattern => {
     this.setState({patternToPlace: pattern.value})
   }
@@ -95,6 +107,7 @@ class Canvas extends React.Component {
 	    newY*=0.9;
 	  }
     this.setState({scale: newScale, centreOffset: [newX, newY]})
+    this.setState({mousePosition: [event.clientX, event.clientY]});
     this.draw();
   }
 
@@ -111,9 +124,10 @@ class Canvas extends React.Component {
       let [newX, newY] = this.state.centreOffset;
       newX += event.clientX - this.state.mousePosition[0];
       newY += event.clientY - this.state.mousePosition[1];
-      this.setState({centreOffset: [newX, newY], mousePosition: [event.clientX, event.clientY]});
-      this.draw();
+      this.setState({centreOffset: [newX, newY]});
     }
+    this.setState({mousePosition: [event.clientX, event.clientY]});
+    this.draw();
   }
 
   clientToCell([clientx, clienty]){
@@ -132,7 +146,7 @@ class Canvas extends React.Component {
     let ctx = this.refs.canvas.getContext("2d");
     ctx.fillStyle="#E0E0E0";
     ctx.fillRect(0,0,this.state.width,this.state.height);
-    const coords = this.state.cells.listCells()
+    let coords = this.state.cells.listCells()
     for(var i=0; i<coords.length; i++){
 	let x, y, clientx, clienty;
 	[x, y] = coords[i];
@@ -141,6 +155,17 @@ class Canvas extends React.Component {
 	[clientx, clienty] = this.cellToClient([x, y]);
 	ctx.fillStyle=colour;
 	ctx.fillRect(clientx, clienty, 0.9*this.state.scale, 0.9*this.state.scale);
+    }
+    let pattern = this.state.patternToPlace;
+    let x, y, clientx, clienty, cellx, celly;
+    [cellx, celly] = this.clientToCell(this.state.mousePosition);
+    for(i=0; i<pattern.length; i++){
+      x = pattern[i][0]+cellx; y = pattern[i][1]+celly;
+      [clientx, clienty] = this.cellToClient([x, y]);
+      ctx.globalAlpha=0.5;
+      ctx.fillStyle=this.state.colourToPlace;
+      ctx.fillRect(clientx, clienty, 0.9*this.state.scale, 0.9*this.state.scale);
+      ctx.globalAlpha=1.0;
     }
   }
 
