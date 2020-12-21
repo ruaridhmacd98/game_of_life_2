@@ -1,4 +1,5 @@
 import React from 'react';
+import Select from 'react-select';
 import Tutorial from './tutorial.js';
 import './App.css';
 
@@ -8,6 +9,12 @@ const COLOURS = {
   2: '#FF0000',
   3: '#00FF00',
 }
+
+const PATTERNS = [
+  {label: 'cell', value: [[0, 0]]},
+  {label: 'square', value: [[0, 0], [1, 0], [0, 1], [1, 1]]},
+  {label: 'glider', value: [[0, 0], [0, 1], [0, 2], [1, 0], [2, 1]]},
+]
 
 class Canvas extends React.Component {
   constructor() {
@@ -21,7 +28,8 @@ class Canvas extends React.Component {
 	  mousePosition: [0, 0],
 	  scale: 10,
 	  centreOffset: [0, 0],
-	  cells: getInitialGrid()
+	  cells: getInitialGrid(),
+	  patternToPlace: [[0, 0]],
     };
   }
 
@@ -41,6 +49,11 @@ class Canvas extends React.Component {
      }, 250)
      }
 
+  selectPattern = pattern => {
+	 console.log(pattern)
+    this.setState({patternToPlace: pattern.value})
+  }
+
   updateRunning = () => {
     this.setState({isRunning: !this.state.isRunning})
   }
@@ -50,7 +63,11 @@ class Canvas extends React.Component {
     let x = event.clientX - ctx.canvas.offsetLeft;
     let y = event.clientY - ctx.canvas.offsetTop;
     [x, y] = this.clientToCell([x, y]);
-    this.state.cells.set(x, y, 1);
+    let pattern = this.state.patternToPlace;
+	  console.log(pattern)
+    for(var i=0; i<pattern.length; i++){
+      this.state.cells.set(pattern[i][0]+x, pattern[i][1]+y, 1);
+    }
     this.draw();
   }
 
@@ -129,6 +146,11 @@ class Canvas extends React.Component {
 	    {this.state.isRunning ? <div>Stop</div>
                             : <div>Start</div>}
 	</button>
+	<Select
+	  onChange={this.selectPattern}
+	  options={PATTERNS}
+	  placeholder='Select Pattern'
+	/>
         <canvas ref="canvas"
 	    onClick={(event) => this.handleClick(event)}
 	    onWheel={(event) => this.handleWheel(event)}
