@@ -4,7 +4,8 @@ import Tutorial from './tutorial.js';
 import './App.css';
 import Grid from './grid.js';
 import Game from './game.js';
-
+import openSocket from 'socket.io-client';
+import socketIOClient from "socket.io-client";
 var io = require('socket.io-client');
 
 const COLOURS = {
@@ -41,8 +42,7 @@ class Canvas extends React.Component {
 	  patternToPlace: [[0, 0]],
 	  colourToPlace: 1,
     };
-	  var socket = io('ws://localhost:8080');
-	  socket.emit('hi', {say:'hi'});
+
   }
 
   componentDidMount() {
@@ -53,6 +53,9 @@ class Canvas extends React.Component {
     var game = new Game();
     this.setState({width: canvas.width});
     this.setState({height: canvas.height});
+// var socket = openSocket('http://localhost:8080');
+const socket = socketIOClient('http://localhost:8080');
+socket.emit('hi', {say:'hi'});
     setInterval(()=>{
 	this.draw();
 	if (this.state.isRunning) {

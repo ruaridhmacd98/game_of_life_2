@@ -10,6 +10,7 @@
     "expresss": "^0.0.0",
     "fs": "^0.0.1-security",
     "lodash": "^4.17.20",
+    "net": "^1.0.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-scripts": "4.0.1",
