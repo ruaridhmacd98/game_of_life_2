@@ -2,7 +2,10 @@ import React from 'react';
 import Select from 'react-select';
 import Tutorial from './tutorial.js';
 import './App.css';
+import Grid from './grid.js';
+import Game from './game.js';
 
+var io = require('socket.io-client');
 
 const COLOURS = {
   1: '#0000FF',
@@ -38,6 +41,8 @@ class Canvas extends React.Component {
 	  patternToPlace: [[0, 0]],
 	  colourToPlace: 1,
     };
+	  var socket = io('ws://localhost:8080');
+	  socket.emit('hi', {say:'hi'});
   }
 
   componentDidMount() {
@@ -55,18 +60,6 @@ class Canvas extends React.Component {
 	}
      }, 250)
      }
-
-  patternFromFile(path) {
-    var fs = require("fs");
-    let res = []
-    fs.readFile("/Users/ruaridh/Documents/code/lfe/zweiback.lfe", function(text){
-      var textByLine = text.split("\n")
-      for(var i=1; i<textByLine.length; i++){
-         res.push(textByLine[i].split(' '))
-      }
-    });
-    return res;
-  }
 
   selectPattern = pattern => {
     this.setState({patternToPlace: pattern.value})
@@ -158,8 +151,6 @@ class Canvas extends React.Component {
     let pattern = this.state.patternToPlace;
     let x, y, clientx, clienty, cellx, celly;
     [cellx, celly] = this.clientToCell(this.state.mousePosition);
-    // celly += ctx.canvas.offsetTop;
-    console.log(celly)
     for(i=0; i<pattern.length; i++){
       x = pattern[i][0]+cellx; y = pattern[i][1]+celly;
       [clientx, clienty] = this.cellToClient([x, y]);
@@ -207,60 +198,6 @@ class Canvas extends React.Component {
 export default Canvas;
 
 
-export class Game {
-  iterate(grid){
-    let counts = this.getCounts(grid)
-    let newGrid = this.generateNewGrid(counts, grid)
-    return newGrid;
-  }
-
-  getCounts(grid) {
-    let counts = new Grid();
-    const cells = grid.listCells()
-    for(var c=0; c<cells.length; c++){
-	var x, y
-	[x, y] = cells[c]
-	let player = grid.get(x, y)
-	for(let i=-1; i<2; i++){
-	   for(let j =-1; j<2; j++){
-		if(i===0 & j===0){continue}
-		let xtmp=x+j, ytmp=y+i;
-		if(!counts.has(xtmp, ytmp)){
-		  counts.set(xtmp, ytmp, {});
-		}
-		if(!(player in counts.get(xtmp, ytmp))){
-		  counts.get(xtmp, ytmp)[player] = 0;
-		}
-		counts.get(xtmp, ytmp)[player]++;
-	   }
-	}
-    }
-    return counts;
-  }
-
-  generateNewGrid(counts, oldGrid){
-    let buffer = new Grid();
-    const cells = counts.listCells()
-    for(var i=0; i<cells.length; i++){
-	var x, y;
-	[x, y] = cells[i];
-	var playerCounts = counts.get(x, y);
-	const sumValues = obj => Object.values(obj).reduce((a, b) => a + b);
-	const maxValue = obj => Object.keys(obj).reduce(function(a, b){ return obj[a] > obj[b] ? a : b });
-	let total = sumValues(playerCounts)
-        if(oldGrid.has(x, y)){
-          if(total===2 | total === 3){
-	    buffer.set(x, y, oldGrid.get(x, y));
-	  }
-        }
-	else if(total===3){
-	     buffer.set(x, y, parseInt(maxValue(playerCounts)));
-        }
-    }
-    return buffer;
-  }
-}
-
 function getInitialGrid() {
   const grid = new Grid();
       grid.set(3, 0, 1);
@@ -279,38 +216,4 @@ function getInitialGrid() {
       grid.set(4, 21, 3);
       grid.set(2, 22, 3);
   return grid;
-}
-
-
-export class Grid {
-  constructor() {
-    this.state = {
-      grid: new Map(),
-    }
-  }
-
-  set(x, y, value){
-   if(!this.state.grid.has(y)){
-     this.state.grid.set(y, new Map());
-   }
-   this.state.grid.get(y).set(x,value);
-  }
-
-  has(x, y){
-    var res = false
-    if(this.state.grid.has(y)){res = this.state.grid.get(y).has(x)}
-    return res
-  }
-
-  get(x, y){return this.state.grid.get(y).get(x)}
-
-  listCells(){
-    var output = []
-    this.state.grid.forEach((row, y, counts)=>{
-      row.forEach((count, x, row)=>{
-	output.push([x, y])
-      })
-    })
-    return output;
-  }
 }
