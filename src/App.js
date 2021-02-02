@@ -53,8 +53,8 @@ class Canvas extends React.Component {
     var game = new Game();
     this.setState({width: canvas.width});
     this.setState({height: canvas.height});
-// var socket = openSocket('http://localhost:8080');
-const socket = socketIOClient('http://localhost:8080');
+var socket = openSocket('http://localhost:8080');
+// const socket = socketIOClient('http://localhost:8080');
 socket.emit('hi', {say:'hi'});
     setInterval(()=>{
 	this.draw();
