@@ -13,15 +13,15 @@ const COLOURS = {
 }
 
 const COLOUR_OPTIONS = [
-  {label: 'blue', value: 1},
-  {label: 'red', value: 2},
-  {label: 'green', value: 3},
+  {label: 'Blue', value: 1},
+  {label: 'Red', value: 2},
+  {label: 'Green', value: 3},
 ]
 
 const PATTERNS = [
-  {label: 'cell', value: [[0, 0]]},
-  {label: 'square', value: [[0, 0], [1, 0], [0, 1], [1, 1]]},
-  {label: 'glider', value: [[0, 0], [0, 1], [0, 2], [1, 0], [2, 1]]},
+  {label: 'Cell', value: [[0, 0]]},
+  {label: 'Square', value: [[0, 0], [1, 0], [0, 1], [1, 1]]},
+  {label: 'Glider', value: [[0, 0], [0, 1], [0, 2], [1, 0], [2, 1]]},
 ]
 
 class Canvas extends React.Component {
