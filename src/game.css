@@ -1,0 +1,52 @@
+.grid {
+  margin-top: 20px;
+  display: inline-block;
+  border-style: solid;
+  border-width: medium;
+  border-color: rgb(113, 217, 227);
+}
+
+.controls {
+  font-size: 30px;
+  background-color: gray;
+  padding-top: 20px;
+  padding-right: 20px;
+  padding-bottom: 10px;
+  padding-left: 30px;
+  height: 80px;
+}
+
+.tut {
+  font-size: 20px;
+  background-color: gray;
+  padding-top: 20px;
+  padding-right: 20px;
+  padding-bottom: 10px;
+  padding-left: 30px;
+  border-radius: 24px;
+}
+
+.select {
+  font-size: 24px;
+  border-radius: 12px;
+  transition-duration: 0.4s;
+  margin-left: 20px;
+  margin-right: 10px;
+  height: 40px;
+  width: 300px;
+  white-space: nowrap;
+  float: left;
+}
+
+.button {
+  font-size: 24px;
+  border-radius: 12px;
+  transition-duration: 0.4s;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.button:hover {
+  background-color: rgb(113, 217, 227);
+  color: white;
+}

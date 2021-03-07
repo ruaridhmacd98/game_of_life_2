@@ -2,11 +2,9 @@ import React from 'react';
 import Select from 'react-select';
 import Tutorial from './tutorial.js';
 import './App.css';
+import './game.css';
 import Grid from './grid.js';
 import Game from './game.js';
-import openSocket from 'socket.io-client';
-import socketIOClient from "socket.io-client";
-var io = require('socket.io-client');
 
 const COLOURS = {
   1: '#0000FF',
@@ -33,7 +31,7 @@ class Canvas extends React.Component {
 	  width: null,
 	  height: null,
 	  ctx: null,
-	  isRunning: true,
+	  isRunning: false,
 	  isDragging: false,
 	  mousePosition: [0, 0],
 	  scale: 10,
@@ -53,9 +51,6 @@ class Canvas extends React.Component {
     var game = new Game();
     this.setState({width: canvas.width});
     this.setState({height: canvas.height});
-var socket = openSocket('http://localhost:8080');
-// const socket = socketIOClient('http://localhost:8080');
-socket.emit('hi', {say:'hi'});
     setInterval(()=>{
 	this.draw();
 	if (this.state.isRunning) {
@@ -153,7 +148,10 @@ socket.emit('hi', {say:'hi'});
     }
     let pattern = this.state.patternToPlace;
     let x, y, clientx, clienty, cellx, celly;
-    [cellx, celly] = this.clientToCell(this.state.mousePosition);
+    [clientx, clienty] = this.state.mousePosition;
+    x = clientx - ctx.canvas.offsetLeft;
+    y = clienty - ctx.canvas.offsetTop;
+    [cellx, celly] = this.clientToCell([x, y]);
     for(i=0; i<pattern.length; i++){
       x = pattern[i][0]+cellx; y = pattern[i][1]+celly;
       [clientx, clienty] = this.cellToClient([x, y]);
@@ -167,9 +165,23 @@ socket.emit('hi', {say:'hi'});
   render (){
     return (
       <div className="App">
-        <header className="App-header">
-        </header>
-        <body>
+	<div className="controls">
+	<Tutorial/>
+	<button className="button" onClick={this.updateRunning}>
+	    {this.state.isRunning ? <div>Stop</div>
+                            : <div>Start</div>}
+	</button>
+	<Select className="select"
+	  onChange={this.selectPattern}
+	  options={PATTERNS}
+	  placeholder='Select Pattern To Add'
+	/>
+	<Select className="select"
+	  onChange={this.selectColour}
+	  options={COLOUR_OPTIONS}
+	  placeholder='Select Colour'
+	/>
+	</div>
         <canvas ref="canvas"
 	    onClick={(event) => this.handleClick(event)}
 	    onWheel={(event) => this.handleWheel(event)}
@@ -177,22 +189,6 @@ socket.emit('hi', {say:'hi'});
 	    onMouseUp={(event) => this.handleMouseUp(event)}
 	    onMouseMove={(event) => this.handleMouseMove(event)}
 	></canvas>
-	<Tutorial/>
-	<button className="button" onClick={this.updateRunning}>
-	    {this.state.isRunning ? <div>Stop</div>
-                            : <div>Start</div>}
-	</button>
-	<Select
-	  onChange={this.selectPattern}
-	  options={PATTERNS}
-	  placeholder='Select Pattern'
-	/>
-	<Select
-	  onChange={this.selectColour}
-	  options={COLOUR_OPTIONS}
-	  placeholder='Select Colour'
-	/>
-        </body>
       </div>
     );
   }
